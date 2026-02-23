@@ -128,7 +128,7 @@ const Landing = () => {
 
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }}
             className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground leading-tight mb-6">
-            From Emotional Debate to{" "}<span className="neon-text">Intelligent Strategy.</span>
+            From Emotional Debate to{" "}<span className="neon-text">Intelligent Strategy.</span><motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }} className="inline-block w-[3px] h-[0.85em] bg-primary ml-1 align-middle rounded-sm" />
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
