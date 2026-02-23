@@ -9,6 +9,15 @@ import AIInsightsPanel from "@/components/AIInsightsPanel";
 import ProfileCard from "@/components/ProfileCard";
 import StrategyArena from "@/components/StrategyArena";
 import LeaderboardPreview from "@/components/LeaderboardPreview";
+import TeamBuilderTab from "@/components/tabs/TeamBuilderTab";
+import AICompareTab from "@/components/tabs/AICompareTab";
+import FullArenaTab from "@/components/tabs/FullArenaTab";
+import AuctionTab from "@/components/tabs/AuctionTab";
+import TerrainTab from "@/components/tabs/TerrainTab";
+import CrossSportTab from "@/components/tabs/CrossSportTab";
+import LeaderboardTab from "@/components/tabs/LeaderboardTab";
+import ProfileTab from "@/components/tabs/ProfileTab";
+import SettingsTab from "@/components/tabs/SettingsTab";
 
 const kpis = [
   { title: "Total Strategy Score", value: "9,247", change: 4.5, icon: Target },
@@ -21,38 +30,59 @@ const kpis = [
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "team-builder":
+        return <TeamBuilderTab />;
+      case "ai-compare":
+        return <AICompareTab />;
+      case "arena":
+        return <FullArenaTab />;
+      case "auction":
+        return <AuctionTab />;
+      case "terrain":
+        return <TerrainTab />;
+      case "cross-sport":
+        return <CrossSportTab />;
+      case "leaderboard":
+        return <LeaderboardTab />;
+      case "profile":
+        return <ProfileTab />;
+      case "settings":
+        return <SettingsTab />;
+      default:
+        return (
+          <>
+            <HeroBanner />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+              {kpis.map((kpi, i) => (
+                <KPICard key={kpi.title} {...kpi} delay={i * 0.1} />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <SportDonutChart />
+                  <PerformanceGraph />
+                </div>
+                <StrategyArena />
+                <LeaderboardPreview />
+              </div>
+              <div className="space-y-6">
+                <ProfileCard />
+                <AIInsightsPanel />
+              </div>
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen gradient-bg">
       <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-
       <main className="ml-[72px] p-6 max-w-[1600px]">
-        <HeroBanner />
-
-        {/* KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-          {kpis.map((kpi, i) => (
-            <KPICard key={kpi.title} {...kpi} delay={i * 0.1} />
-          ))}
-        </div>
-
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <SportDonutChart />
-              <PerformanceGraph />
-            </div>
-            <StrategyArena />
-            <LeaderboardPreview />
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            <ProfileCard />
-            <AIInsightsPanel />
-          </div>
-        </div>
+        {renderTabContent()}
       </main>
     </div>
   );
