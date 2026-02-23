@@ -1,12 +1,12 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Zap, Brain, Users, Trophy, Target, BarChart3, Shield, Swords,
   ArrowRight, Star, TrendingUp, Activity, ChevronRight, Sparkles,
-  Sun, Moon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, Tooltip
@@ -86,26 +86,6 @@ const AnimatedSection = ({ children, className = "" }: { children: React.ReactNo
 
 const Landing = () => {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(() => !document.documentElement.classList.contains("light"));
-
-  const toggleTheme = () => {
-    const next = !isDark;
-    setIsDark(next);
-    if (next) {
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.add("light");
-    }
-    localStorage.setItem("theme", next ? "dark" : "light");
-  };
-
-  useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    if (saved === "light") {
-      document.documentElement.classList.add("light");
-      setIsDark(false);
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden transition-colors duration-300">
@@ -124,15 +104,7 @@ const Landing = () => {
             <a href="#testimonials" className="hover:text-foreground transition-colors">Reviews</a>
           </div>
           <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.1, rotate: 15 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={toggleTheme}
-              className="w-9 h-9 rounded-xl flex items-center justify-center border border-border/50 bg-secondary/50 hover:bg-secondary transition-colors"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-primary" /> : <Moon className="w-4 h-4 text-foreground" />}
-            </motion.button>
+            <ThemeToggle />
             <Button onClick={() => navigate("/dashboard")} className="bg-primary text-primary-foreground hover:shadow-[0_0_30px_hsl(75_100%_50%/0.3)] text-xs h-9 px-4">
               Launch Dashboard <ArrowRight className="w-3 h-3 ml-1" />
             </Button>
