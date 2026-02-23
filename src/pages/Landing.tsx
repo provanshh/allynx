@@ -120,9 +120,9 @@ const Landing = () => {
             <span className="font-display font-bold text-sm text-foreground">AI Sports League</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-xs text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#insights" className="hover:text-foreground transition-colors">Insights</a>
-            <a href="#testimonials" className="hover:text-foreground transition-colors">Reviews</a>
+            <Button onClick={() => navigate("/game")} variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 text-xs h-9 px-5 font-semibold">
+              🎮 Start the Game
+            </Button>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />

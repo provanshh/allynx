@@ -1,0 +1,112 @@
+import React from 'react';
+import { GameStatus, NPC, Passenger, ControlMode, Bullet, VehicleType, ThemeType } from '../types';
+import { WORLD_WIDTH, WORLD_HEIGHT, ROAD_TOP, ROAD_BOTTOM, INTERACTION_RANGE } from '../constants';
+
+interface GameCanvasProps {
+  playerPos: { x: number, y: number };
+  personPos: { x: number, y: number };
+  controlMode: ControlMode;
+  npcs: NPC[];
+  bullets: Bullet[];
+  scrollOffset: number;
+  status: GameStatus;
+  progress: number;
+  passengers: Passenger[];
+  vehicle: VehicleType;
+  theme: ThemeType;
+}
+
+const THEME_COLORS = {
+  desert: { road: '#866043', landscape: '#55aa33', pattern: 'rgba(255,255,255,0.1)' },
+  neon: { road: '#1a1a2e', landscape: '#0f0f1b', pattern: 'rgba(0,255,255,0.2)' },
+  frozen: { road: '#a5f3fc', landscape: '#f1f5f9', pattern: 'rgba(0,0,0,0.05)' },
+  toxic: { road: '#3f6212', landscape: '#1a2e05', pattern: 'rgba(100,255,0,0.1)' },
+};
+
+const GameCanvas: React.FC<GameCanvasProps> = ({ playerPos, personPos, controlMode, npcs, bullets, scrollOffset, status, progress, passengers, vehicle, theme }) => {
+  const colors = THEME_COLORS[theme] || THEME_COLORS.desert;
+
+  const renderVehicle = () => {
+    switch (vehicle) {
+      case 'bike':
+        return (<g><rect x="-12" y="-4" width="24" height="8" fill="#333" stroke="#000" strokeWidth="2" /><circle cx="-10" cy="4" r="5" fill="#111" stroke="#000" strokeWidth="1" /><circle cx="10" cy="4" r="5" fill="#111" stroke="#000" strokeWidth="1" /><rect x="-4" y="-12" width="4" height="10" fill="#cc3333" stroke="#000" strokeWidth="1" /><rect x="-2" y="-14" width="8" height="2" fill="#555" stroke="#000" strokeWidth="1" /></g>);
+      case 'car':
+        return (<g><rect x="-20" y="-8" width="40" height="16" fill="#4466aa" stroke="#000" strokeWidth="2" /><rect x="-12" y="-16" width="20" height="10" fill="#aaccff" stroke="#000" strokeWidth="2" /><circle cx="-14" cy="8" r="6" fill="#111" stroke="#000" strokeWidth="1" /><circle cx="14" cy="8" r="6" fill="#111" stroke="#000" strokeWidth="1" /><rect x="18" y="-4" width="4" height="4" fill="#ffaa00" /></g>);
+      case 'truck':
+        return (<g><rect x="-30" y="-12" width="60" height="24" fill="#aa4444" stroke="#000" strokeWidth="2" /><rect x="15" y="-22" width="15" height="20" fill="#333" stroke="#000" strokeWidth="2" /><rect x="18" y="-18" width="8" height="6" fill="#aaccff" /><circle cx="-20" cy="12" r="8" fill="#111" stroke="#000" strokeWidth="1" /><circle cx="0" cy="12" r="8" fill="#111" stroke="#000" strokeWidth="1" /><circle cx="20" cy="12" r="8" fill="#111" stroke="#000" strokeWidth="1" /></g>);
+      case 'train':
+        return (<g><rect x="-40" y="-15" width="80" height="30" fill="#222" stroke="#000" strokeWidth="2" /><rect x="20" y="-30" width="20" height="25" fill="#444" stroke="#000" strokeWidth="2" /><rect x="25" y="-35" width="10" height="10" fill="#666" stroke="#000" strokeWidth="1" /><circle cx="-30" cy="15" r="7" fill="#555" stroke="#000" strokeWidth="1" /><circle cx="-10" cy="15" r="7" fill="#555" stroke="#000" strokeWidth="1" /><circle cx="10" cy="15" r="7" fill="#555" stroke="#000" strokeWidth="1" /><circle cx="30" cy="15" r="7" fill="#555" stroke="#000" strokeWidth="1" /><rect x="40" y="-5" width="5" height="10" fill="#ffaa00" className="animate-pulse" /></g>);
+      default:
+        return (<g><rect x="-14" y="-12" width="28" height="20" fill="#3d2b1f" stroke="#000" strokeWidth="2" /><rect x="-14" y="-22" width="28" height="12" fill="#e0e0e0" stroke="#000" strokeWidth="2" /><rect x="-12" y="4" width="8" height="8" fill="#1a1a1a" stroke="#000" strokeWidth="2" /><rect x="4" y="4" width="8" height="8" fill="#1a1a1a" stroke="#000" strokeWidth="2" /></g>);
+    }
+  };
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-[#1a1a1a]">
+      <svg width={WORLD_WIDTH} height={WORLD_HEIGHT} viewBox={`0 0 ${WORLD_WIDTH} ${WORLD_HEIGHT}`} className="w-full h-auto shadow-2xl border-4 border-black">
+        <defs>
+          <radialGradient id="coinGlowSmall"><stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6" /><stop offset="100%" stopColor="#f59e0b" stopOpacity="0" /></radialGradient>
+          <radialGradient id="coinGlowBig"><stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" /><stop offset="100%" stopColor="#fbbf24" stopOpacity="0" /></radialGradient>
+          <radialGradient id="mysteryGlow"><stop offset="0%" stopColor="#d946ef" stopOpacity="0.8" /><stop offset="100%" stopColor="#d946ef" stopOpacity="0" /></radialGradient>
+          <pattern id="roadPattern" x={-scrollOffset} y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+            <rect width="100" height="100" fill={colors.road} />
+            <rect x="0" y="45" width="20" height="10" fill={colors.pattern} />
+          </pattern>
+        </defs>
+        <rect width={WORLD_WIDTH} height={WORLD_HEIGHT} fill={colors.landscape} />
+        <rect y={ROAD_TOP} width={WORLD_WIDTH} height={ROAD_BOTTOM - ROAD_TOP} fill="url(#roadPattern)" stroke="black" strokeWidth="4" />
+
+        {npcs.map(npc => {
+          const isNear = Math.abs(npc.x - playerPos.x) < INTERACTION_RANGE && Math.abs(npc.y - playerPos.y) < INTERACTION_RANGE;
+          if (npc.type === 'coin') {
+            const isBig = npc.encounterId === 'big_coin';
+            return (<g key={npc.id} transform={`translate(${npc.x}, ${npc.y})`}><circle r={isBig ? 30 : 20} fill={isBig ? "url(#coinGlowBig)" : "url(#coinGlowSmall)"} /><g className="animate-bounce"><circle r={isBig ? 14 : 9} fill={isBig ? "#fbbf24" : "#f59e0b"} stroke="black" strokeWidth="2" /><text textAnchor="middle" y={isBig ? 6 : 4} className={`fill-yellow-950 font-black ${isBig ? 'text-[14px]' : 'text-[10px]'}`}>$</text></g></g>);
+          }
+          if (npc.type === 'mystery_box') {
+            return (<g key={npc.id} transform={`translate(${npc.x}, ${npc.y})`}><circle r="40" fill="url(#mysteryGlow)" className="animate-pulse" /><g className="animate-bounce"><rect x="-15" y="-15" width="30" height="30" fill="#d946ef" stroke="black" strokeWidth="3" /><text textAnchor="middle" y="10" className="fill-white font-black text-2xl">?</text></g></g>);
+          }
+          if (npc.type === 'person') {
+            return (<g key={npc.id} transform={`translate(${npc.x}, ${npc.y})`}><rect x="-8" y="-18" width="16" height="24" fill="#ffdbac" stroke="black" strokeWidth="2" /><rect x="-10" y="6" width="6" height="12" fill="#333" stroke="black" strokeWidth="1" /><rect x="4" y="6" width="6" height="12" fill="#333" stroke="black" strokeWidth="1" /><rect x="-12" y="-10" width="24" height="16" fill={npc.passengerData?.type === 'merchant' ? '#fbbf24' : npc.passengerData?.type === 'cook' ? '#f87171' : npc.passengerData?.type === 'scholar' ? '#60a5fa' : '#4ade80'} stroke="black" strokeWidth="2" /><text y="-25" textAnchor="middle" className="fill-white text-[10px] font-bold uppercase">{npc.passengerData?.name}</text>{isNear && controlMode === 'caravan' && (<g transform="translate(0, -50)"><rect x="-40" y="-15" width="80" height="25" fill="black" rx="4" /><text textAnchor="middle" y="3" className="fill-yellow-400 text-[10px] font-bold">PRESS [E] TO ONBOARD</text></g>)}</g>);
+          }
+          if (npc.type === 'trader' || npc.type === 'food_cart' || npc.type === 'mystic') {
+            const isMoneyThemed = npc.type === 'trader';
+            const boxColor = isMoneyThemed ? "#1e3a1e" : "#444";
+            return (<g key={npc.id} transform={`translate(${npc.x}, ${npc.y})`}><ellipse rx={npc.width/2} ry={6} cy={npc.height/2 + 5} fill="rgba(0,0,0,0.3)" /><rect x={-npc.width/2} y={-npc.height/2} width={npc.width} height={npc.height} fill={boxColor} stroke="black" strokeWidth="3" /><rect x={-npc.width/2 + 6} y={-npc.height/2 + 6} width={npc.width - 12} height={npc.height / 2} fill="#222" stroke="black" strokeWidth="2" /><g transform="translate(0, -5)"><rect x="-8" y="-4" width="16" height="12" fill={isMoneyThemed ? "#3b82f6" : "#e11d48"} stroke="black" strokeWidth="1" /><rect x="-6" y="-14" width="12" height="12" fill="#ffdbac" stroke="black" strokeWidth="1" /><rect x="-3" y="-10" width="2" height="2" fill="black" /><rect x="1" y="-10" width="2" height="2" fill="black" /></g><text y={npc.height/2 + 20} textAnchor="middle" className="fill-white text-[14px] font-bold uppercase">{npc.type.toUpperCase()}</text><circle cx="0" cy={-npc.height/2 - 15} r="10" fill="#000" /><text y={-npc.height/2 - 8} textAnchor="middle" className="fill-yellow-400 text-xl font-black animate-pulse">!</text></g>);
+          }
+          return (<g key={npc.id} transform={`translate(${npc.x}, ${npc.y})`}><rect x={-npc.width/2} y={-npc.height/2} width={npc.width} height={npc.height} fill={npc.type === 'haven' ? "#ffffff" : "#444"} stroke="black" strokeWidth="2" /><text y={npc.height/2 + 20} textAnchor="middle" className="fill-white text-[14px] font-bold uppercase">{npc.type.toUpperCase()}</text><text y="5" textAnchor="middle" className="fill-yellow-400 text-xl font-black">!</text></g>);
+        })}
+
+        {bullets.map(b => (<circle key={b.id} cx={b.x} cy={b.y} r="3" fill="#ff0" stroke="#000" strokeWidth="1" />))}
+
+        <g transform={`translate(${playerPos.x}, ${playerPos.y})`}>
+          <rect x="-16" y="10" width="32" height="6" fill="rgba(0,0,0,0.3)" />
+          {renderVehicle()}
+          {passengers.map((p, i) => {
+            const pColors: Record<string, string> = { merchant: '#fbbf24', cook: '#f87171', scholar: '#60a5fa', guard: '#4ade80' };
+            return (<rect key={p.id} x={-10 + (i * 8)} y="-18" width="6" height="6" fill={pColors[p.type]} stroke="black" strokeWidth="1" className="animate-pulse" />);
+          })}
+          {status === 'playing' && controlMode === 'caravan' && (<rect x="-25" y="5" width="4" height="4" fill="rgba(255,255,255,0.3)" className="animate-ping" />)}
+        </g>
+
+        {controlMode === 'person' && (
+          <g transform={`translate(${personPos.x}, ${personPos.y})`}>
+            <rect x="-6" y="-14" width="12" height="18" fill="#ffdbac" stroke="black" strokeWidth="1" />
+            <rect x="-6" y="-4" width="12" height="10" fill="#3b82f6" stroke="black" strokeWidth="1" />
+            <rect x="-8" y="-14" width="16" height="4" fill="#333" />
+            <rect x="6" y="-8" width="8" height="4" fill="#000" stroke="#444" strokeWidth="1" />
+            <rect x="-4" y="4" width="3" height="4" fill="#000" className="animate-bounce" />
+            <rect x="1" y="4" width="3" height="4" fill="#000" className="animate-bounce" style={{animationDelay: '0.1s'}} />
+          </g>
+        )}
+
+        <g transform="translate(100, 30)">
+          <rect width={WORLD_WIDTH - 200} height="10" fill="black" />
+          <rect width={(progress / 100) * (WORLD_WIDTH - 200)} height="10" fill="#fbbf24" />
+          <text x={(WORLD_WIDTH - 200) / 2} y="-10" textAnchor="middle" className="fill-white text-lg font-bold uppercase tracking-wider">PROGRESS TO HAVEN</text>
+        </g>
+      </svg>
+    </div>
+  );
+};
+
+export default GameCanvas;
