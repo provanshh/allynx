@@ -5,6 +5,7 @@ import {
   GitCompare, Trophy, User, Settings, Zap
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
@@ -76,6 +77,10 @@ const AppSidebar = ({ activeTab, onTabChange }: SidebarProps) => {
           );
         })}
       </nav>
+
+      <div className="mt-auto pt-4">
+        <ThemeToggle />
+      </div>
     </motion.aside>
   );
 };
