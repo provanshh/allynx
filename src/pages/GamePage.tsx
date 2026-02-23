@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ThemeToggle from "@/components/ThemeToggle";
 import GameEngine from "@/game/GameEngine";
+import PlayerComparison from "@/components/PlayerComparison";
 import gamingBgVideo from "@/assets/gaming-bg.mp4";
 
 interface LeaderboardEntry {
@@ -94,31 +95,36 @@ const GamePage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Name Entry & Start */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-            className="glass-card p-8 flex flex-col items-center justify-center gap-6">
-            <Gamepad2 className="w-12 h-12 text-primary icon-glow" />
-            <h2 className="text-2xl font-display font-bold text-foreground">Enter Your Name</h2>
-            <p className="text-sm text-muted-foreground text-center">Your name will appear on the leaderboard when the game ends.</p>
-            <Input
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Enter your name..."
-              className="max-w-xs text-center text-lg h-12 bg-secondary/50 border-border/30"
-              onKeyDown={(e) => e.key === 'Enter' && handleStartGame()}
-            />
-            <Button
-              onClick={handleStartGame}
-              disabled={playerName.trim().length < 2}
-              size="lg"
-              className="bg-primary text-primary-foreground text-lg h-14 px-12 hover:shadow-[0_0_40px_hsl(75_100%_50%/0.4)] transition-shadow disabled:opacity-50"
-            >
-              <Gamepad2 className="w-5 h-5 mr-2" /> START GAME
-            </Button>
-            <div className="text-xs text-muted-foreground space-y-1 text-center mt-4">
-              <p><strong>Controls:</strong> WASD to move, E to onboard, P to trade, V for hangar</p>
-              <p>C to exit/enter vehicle, SPACE to pause, S for settings</p>
-            </div>
-          </motion.div>
+          <div className="space-y-0">
+            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
+              className="glass-card p-8 flex flex-col items-center justify-center gap-6">
+              <Gamepad2 className="w-12 h-12 text-primary icon-glow" />
+              <h2 className="text-2xl font-display font-bold text-foreground">Enter Your Name</h2>
+              <p className="text-sm text-muted-foreground text-center">Your name will appear on the leaderboard when the game ends.</p>
+              <Input
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                placeholder="Enter your name..."
+                className="max-w-xs text-center text-lg h-12 bg-secondary/50 border-border/30"
+                onKeyDown={(e) => e.key === 'Enter' && handleStartGame()}
+              />
+              <Button
+                onClick={handleStartGame}
+                disabled={playerName.trim().length < 2}
+                size="lg"
+                className="bg-primary text-primary-foreground text-lg h-14 px-12 hover:shadow-[0_0_40px_hsl(75_100%_50%/0.4)] transition-shadow disabled:opacity-50"
+              >
+                <Gamepad2 className="w-5 h-5 mr-2" /> START GAME
+              </Button>
+              <div className="text-xs text-muted-foreground space-y-1 text-center mt-4">
+                <p><strong>Controls:</strong> WASD to move, E to onboard, P to trade, V for hangar</p>
+                <p>C to exit/enter vehicle, SPACE to pause, S for settings</p>
+              </div>
+            </motion.div>
+
+            {/* Player Comparison */}
+            <PlayerComparison leaderboard={leaderboard} />
+          </div>
 
           {/* Leaderboard */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}

@@ -9,6 +9,7 @@ import AIInsightsPanel from "@/components/AIInsightsPanel";
 import ProfileCard from "@/components/ProfileCard";
 import StrategyArena from "@/components/StrategyArena";
 import LeaderboardPreview from "@/components/LeaderboardPreview";
+import RecentPlayers from "@/components/RecentPlayers";
 import TeamBuilderTab from "@/components/tabs/TeamBuilderTab";
 import AICompareTab from "@/components/tabs/AICompareTab";
 import FullArenaTab from "@/components/tabs/FullArenaTab";
@@ -76,6 +77,7 @@ const Index = () => {
                   <PerformanceGraph />
                 </div>
                 <StrategyArena />
+                <RecentPlayers />
                 <LeaderboardPreview />
               </div>
               <div className="space-y-6">
