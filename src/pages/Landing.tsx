@@ -1,5 +1,5 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Zap, Brain, Users, Trophy, Target, BarChart3, Shield, Swords,
@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import TypewriterText from "@/components/TypewriterText";
+import gamingBgVideo from "@/assets/gaming-bg.mp4";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, Tooltip
@@ -87,9 +88,28 @@ const AnimatedSection = ({ children, className = "" }: { children: React.ReactNo
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isGaming, setIsGaming] = useState(() => document.documentElement.classList.contains("gaming"));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsGaming(document.documentElement.classList.contains("gaming"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden transition-colors duration-300">
+    <div className="min-h-screen bg-background overflow-x-hidden transition-colors duration-300 relative">
+      {isGaming && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="fixed inset-0 w-full h-full object-cover z-0 opacity-25 pointer-events-none"
+          src={gamingBgVideo}
+        />
+      )}
       {/* Nav */}
       <nav className="fixed top-0 w-full z-50 border-b border-border/30 backdrop-blur-xl bg-background/60 transition-colors">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">

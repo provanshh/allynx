@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Target, Users, Brain, BarChart3, Crown } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
 import HeroBanner from "@/components/HeroBanner";
@@ -18,6 +18,7 @@ import CrossSportTab from "@/components/tabs/CrossSportTab";
 import LeaderboardTab from "@/components/tabs/LeaderboardTab";
 import ProfileTab from "@/components/tabs/ProfileTab";
 import SettingsTab from "@/components/tabs/SettingsTab";
+import gamingBgVideo from "@/assets/gaming-bg.mp4";
 
 const kpis = [
   { title: "Total Strategy Score", value: "9,247", change: 4.5, icon: Target },
@@ -29,6 +30,15 @@ const kpis = [
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isGaming, setIsGaming] = useState(() => document.documentElement.classList.contains("gaming"));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsGaming(document.documentElement.classList.contains("gaming"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -79,7 +89,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen gradient-bg">
+    <div className="min-h-screen gradient-bg relative">
+      {isGaming && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="fixed inset-0 w-full h-full object-cover z-0 opacity-20 pointer-events-none"
+          src={gamingBgVideo}
+        />
+      )}
       <AppSidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <main className="ml-[72px] p-6 max-w-[1600px]">
         {renderTabContent()}
