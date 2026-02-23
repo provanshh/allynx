@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
+import TypewriterText from "@/components/TypewriterText";
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   ResponsiveContainer, XAxis, YAxis, Tooltip
@@ -127,8 +128,11 @@ const Landing = () => {
           </motion.div>
 
           <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.15 }}
-            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-foreground leading-tight mb-6">
-            From Emotional Debate to{" "}<span className="neon-text">Intelligent Strategy.</span><motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }} className="inline-block w-[3px] h-[0.85em] bg-primary ml-1 align-middle rounded-sm" />
+            className="font-display font-bold text-foreground leading-tight mb-6">
+            <span className="block text-3xl md:text-5xl lg:text-6xl mb-2">From Emotional Debate to</span>
+            <span className="block text-4xl md:text-6xl lg:text-7xl">
+              <TypewriterText text="Intelligent Strategy." className="neon-text" typeSpeed={90} eraseSpeed={50} pauseDuration={2500} />
+            </span>
           </motion.h1>
 
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}
