@@ -50,6 +50,50 @@
     --sidebar-border: 120 6% 14%;
     --sidebar-ring: 75 100% 50%;
   }
+
+  .light {
+    --background: 60 10% 97%;
+    --foreground: 120 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 120 10% 10%;
+    --card-glass: 0 0% 98%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 10% 10%;
+
+    --primary: 75 85% 38%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 120 5% 92%;
+    --secondary-foreground: 120 5% 30%;
+
+    --muted: 120 5% 90%;
+    --muted-foreground: 120 5% 45%;
+
+    --accent: 75 85% 38%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 120 5% 85%;
+    --input: 120 5% 85%;
+    --ring: 75 85% 38%;
+
+    --neon-glow: 75 85% 38%;
+    --neon-green: 142 60% 35%;
+    --neon-cyan: 180 60% 38%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 120 5% 45%;
+    --sidebar-primary: 75 85% 38%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 120 5% 94%;
+    --sidebar-accent-foreground: 120 10% 10%;
+    --sidebar-border: 120 5% 88%;
+    --sidebar-ring: 75 85% 38%;
+  }
 }
 
 @layer base {
@@ -69,9 +113,15 @@
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl;
+    @apply bg-card/60 backdrop-blur-xl border border-border/50 rounded-2xl transition-colors duration-300;
     box-shadow: 0 0 30px -10px hsl(var(--neon-glow) / 0.06),
                 inset 0 1px 0 0 hsl(60 10% 95% / 0.04);
+  }
+
+  .light .glass-card {
+    @apply bg-card/80;
+    box-shadow: 0 4px 20px -5px hsl(0 0% 0% / 0.08),
+                inset 0 1px 0 0 hsl(0 0% 100% / 0.6);
   }
 
   .glass-card-glow {
@@ -81,10 +131,19 @@
                 inset 0 1px 0 0 hsl(60 10% 95% / 0.06);
   }
 
+  .light .glass-card-glow {
+    box-shadow: 0 4px 30px -5px hsl(var(--neon-glow) / 0.12),
+                inset 0 1px 0 0 hsl(0 0% 100% / 0.6);
+  }
+
   .neon-text {
     color: hsl(var(--primary));
     text-shadow: 0 0 20px hsl(var(--neon-glow) / 0.5),
                  0 0 40px hsl(var(--neon-glow) / 0.2);
+  }
+
+  .light .neon-text {
+    text-shadow: none;
   }
 
   .neon-border {
@@ -93,9 +152,18 @@
                 inset 0 0 15px -3px hsl(var(--neon-glow) / 0.05);
   }
 
+  .light .neon-border {
+    box-shadow: 0 0 10px -3px hsl(var(--neon-glow) / 0.1);
+  }
+
   .gradient-bg {
     background: radial-gradient(ellipse at 20% 0%, hsl(120 20% 8%) 0%, hsl(var(--background)) 60%),
                 radial-gradient(ellipse at 80% 100%, hsl(75 30% 6%) 0%, transparent 50%);
+  }
+
+  .light .gradient-bg {
+    background: radial-gradient(ellipse at 20% 0%, hsl(75 40% 95%) 0%, hsl(var(--background)) 60%),
+                radial-gradient(ellipse at 80% 100%, hsl(142 30% 94%) 0%, transparent 50%);
   }
 
   .icon-glow {
