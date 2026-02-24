@@ -10,6 +10,7 @@ import PlayerComparison from "@/components/PlayerComparison";
 import AIPlayerComparison from "@/components/AIPlayerComparison";
 import PostGameAnalysis, { GameSessionData } from "@/components/PostGameAnalysis";
 import gamingBgVideo from "@/assets/gaming-bg.mp4";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 interface LeaderboardEntry {
   name: string;
@@ -78,6 +79,22 @@ const GamePage = () => {
     };
     setLastSession(session);
     localStorage.setItem("last-game-session", JSON.stringify(session));
+
+    const duration = Math.floor(session.duration);
+    const mins = Math.floor(duration / 60);
+    const secs = duration % 60;
+    const endLabel = endType === 'victory' ? '🏆 VICTORY' : endType === 'exit' ? '🚪 EXIT' : '💀 GAME OVER';
+    sendTelegramNotification(
+      `🎮 <b>Game Finished</b>\n\n` +
+      `👤 Player: <b>${playerName}</b>\n` +
+      `${endLabel}${victoryType ? ` (${victoryType})` : ''}\n\n` +
+      `⏱ Duration: ${mins}m ${secs}s\n` +
+      `💰 Gold: ${gold} | ⭐ Rep: ${reputation} | 🏅 Score: ${score}\n` +
+      `📍 Progress: ${Math.round(resources.progress)}% | 🗺 Regions: ${resources.journeyCount}\n` +
+      `⚔️ Encounters: ${stats.encountersTriggered} | 🎯 Choices: ${stats.choicesMade}\n` +
+      `🪙 Coins: ${stats.coinsCollected} | 👥 Crew: ${resources.passengers.length}\n` +
+      `💥 Shots: ${stats.bulletsShot} | 💔 Damages: ${stats.damagesTaken}`
+    );
   };
 
   const handleExit = () => {

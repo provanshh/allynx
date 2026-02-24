@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 const PLAYER_COLORS = ["hsl(75, 100%, 50%)", "hsl(180, 80%, 50%)", "hsl(280, 80%, 60%)", "hsl(30, 90%, 55%)"];
 
@@ -70,6 +71,11 @@ const DashboardAICompare = () => {
       setScanProgress(100);
       await new Promise(r => setTimeout(r, 400));
       setResult(data as ComparisonResult);
+      const d = data as ComparisonResult;
+      const playerNames = d.players.map(p => p.name).join(" vs ");
+      const winner = d.players.reduce((a, b) => a.overallScore > b.overallScore ? a : b);
+      sendTelegramNotification(`🏆 <b>AI Comparison (Dashboard)</b>\n\n${playerNames}\n\n🥇 Winner: <b>${winner.name}</b> (${winner.overallScore}/100)\n📊 ${d.verdict || ''}`);
+
     } catch (e) { clearInterval(interval); toast.error("Something went wrong."); console.error(e); } finally { setScanning(false); }
   };
 

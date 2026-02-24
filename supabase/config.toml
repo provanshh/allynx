@@ -2,3 +2,6 @@ project_id = "lkftsnfcnyafsrrtppqz"
 
 [functions.compare-players]
 verify_jwt = false
+
+[functions.telegram-notify]
+verify_jwt = false
