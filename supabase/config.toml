@@ -1,0 +1,4 @@
+project_id = "lkftsnfcnyafsrrtppqz"
+
+[functions.compare-players]
+verify_jwt = false
