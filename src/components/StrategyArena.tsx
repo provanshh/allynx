@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Swords, Users, Zap, Crown } from "lucide-react";
+import { sendTelegramNotification } from "@/lib/telegram";
+import { toast } from "sonner";
 
 const contests = [
   { name: "Cricket Masters Cup", type: "Free", participants: 128, reward: "Gold Badge + 500 XP", status: "Live" },
@@ -48,7 +50,10 @@ const StrategyArena = () => {
                 </span>
               </div>
             </div>
-            <button className="text-[10px] font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:shadow-[0_0_20px_hsl(75_100%_50%/0.3)] transition-shadow flex-shrink-0 ml-3">
+            <button onClick={() => {
+              toast.success(`Joined ${c.name}!`);
+              sendTelegramNotification(`🏟️ <b>Arena Join</b>\nJoined <b>${c.name}</b> (${c.type})\n👥 ${c.participants} players · 🏆 ${c.reward}`);
+            }} className="text-[10px] font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:shadow-[0_0_20px_hsl(75_100%_50%/0.3)] transition-shadow flex-shrink-0 ml-3">
               Join
             </button>
           </motion.div>

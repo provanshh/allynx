@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Swords, Users, Crown, Zap, Clock, Star, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { sendTelegramNotification } from "@/lib/telegram";
+import { toast } from "sonner";
 
 const contests = [
   { name: "Cricket Masters Cup", type: "Free", participants: 128, max: 256, reward: "Gold Badge + 500 XP", status: "Live", timeLeft: "2h 15m" },
@@ -63,7 +65,10 @@ const FullArenaTab = () => (
                 </div>
               </div>
             </div>
-            <Button size="sm" className="h-8 text-xs bg-primary text-primary-foreground hover:shadow-[0_0_20px_hsl(75_100%_50%/0.3)] ml-4">
+            <Button size="sm" className="h-8 text-xs bg-primary text-primary-foreground hover:shadow-[0_0_20px_hsl(75_100%_50%/0.3)] ml-4" onClick={() => {
+              toast.success(`Joined ${c.name}!`);
+              sendTelegramNotification(`🏟️ <b>Contest Joined</b>\n📋 <b>${c.name}</b> (${c.type})\n👥 ${c.participants}/${c.max} · ⏱️ ${c.timeLeft} left\n🏆 ${c.reward}`);
+            }}>
               Join Contest
             </Button>
           </motion.div>
@@ -81,7 +86,10 @@ const FullArenaTab = () => (
                 <p className="text-[10px] text-muted-foreground">{c.participants}/{c.max} · {c.timeLeft} left</p>
               </div>
             </div>
-            <Button size="sm" className="h-7 text-[10px] bg-primary text-primary-foreground">Join</Button>
+            <Button size="sm" className="h-7 text-[10px] bg-primary text-primary-foreground" onClick={() => {
+              toast.success(`Joined ${c.name}!`);
+              sendTelegramNotification(`🔴 <b>Live Contest Joined</b>\n📋 <b>${c.name}</b>\n👥 ${c.participants}/${c.max} · ⏱️ ${c.timeLeft} left`);
+            }}>Join</Button>
           </motion.div>
         ))}
       </TabsContent>
