@@ -51,9 +51,24 @@ const playSound = (type: string) => {
   }
 };
 
+export interface GameSessionStats {
+  encountersTriggered: number;
+  choicesMade: number;
+  coinsCollected: number;
+  passengersOnboarded: number;
+  bulletsShot: number;
+  vehicleChanges: number;
+  mysteryBoxesOpened: number;
+  foodConsumed: number;
+  goldSpent: number;
+  goldEarned: number;
+  damagesTaken: number;
+  startTime: number;
+}
+
 interface GameEngineProps {
   playerName: string;
-  onGameEnd: (score: number, gold: number, reputation: number) => void;
+  onGameEnd: (score: number, gold: number, reputation: number, stats: GameSessionStats, resources: any, endType: string, victoryType: string | null) => void;
   onExit: () => void;
 }
 
@@ -79,6 +94,12 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
   const [musicVolume, setMusicVolume] = useState(0.5);
   const [ambientVolume, setAmbientVolume] = useState(0.5);
   const [isMouseControlEnabled, setIsMouseControlEnabled] = useState(false);
+
+  const sessionStats = useRef<GameSessionStats>({
+    encountersTriggered: 0, choicesMade: 0, coinsCollected: 0, passengersOnboarded: 0,
+    bulletsShot: 0, vehicleChanges: 0, mysteryBoxesOpened: 0, foodConsumed: 0,
+    goldSpent: 0, goldEarned: 0, damagesTaken: 0, startTime: Date.now(),
+  });
 
   const keys = useRef<Set<string>>(new Set());
   const requestRef = useRef<number>();
@@ -208,18 +229,19 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
         if (prev.passengers.some(p => p.type === 'cook')) drain *= 0.8;
         if (flags.has('efficiency_upgrade')) drain *= 0.75;
         let nextFood = Math.max(0, prev.food - drain); let nextLives = prev.lives;
-        if (nextFood <= 0) { if (nextLives > 1) { playSound('hurt'); nextLives -= 1; nextFood = 50; } else { playSound('gameover'); setStatus('gameover'); stopAllAudio(); onGameEnd(prev.gold + prev.reputation * 2, prev.gold, prev.reputation); } }
+        sessionStats.current.foodConsumed += drain;
+        if (nextFood <= 0) { if (nextLives > 1) { playSound('hurt'); nextLives -= 1; nextFood = 50; sessionStats.current.damagesTaken += 1; } else { playSound('gameover'); setStatus('gameover'); stopAllAudio(); onGameEnd(prev.gold + prev.reputation * 2, prev.gold, prev.reputation, sessionStats.current, prev, 'gameover', null); } }
         return { ...prev, food: nextFood, lives: nextLives, progress: Math.min(100, prev.progress + ((SCROLL_SPEED * vSpeedMult) / 80)) };
       });
       setScrollOffset(prev => (prev + SCROLL_SPEED * vSpeedMult) % 100);
       setNpcs(prev => {
         const updated = prev.map(n => ({ ...n, x: n.x - SCROLL_SPEED * vSpeedMult * n.speedMultiplier })).filter(n => n.x > -150);
         const coinIdx = updated.findIndex(n => n.type === 'coin' && Math.abs(n.x - playerPos.x) < 35 && Math.abs(n.y - playerPos.y) < 35);
-        if (coinIdx !== -1) { playSound('coin'); setResources(r => ({ ...r, gold: r.gold + (updated[coinIdx].encounterId === 'big_coin' ? 25 : 5) })); return updated.filter((_, i) => i !== coinIdx); }
+        if (coinIdx !== -1) { playSound('coin'); sessionStats.current.coinsCollected += 1; sessionStats.current.goldEarned += (updated[coinIdx].encounterId === 'big_coin' ? 25 : 5); setResources(r => ({ ...r, gold: r.gold + (updated[coinIdx].encounterId === 'big_coin' ? 25 : 5) })); return updated.filter((_, i) => i !== coinIdx); }
         const mysteryIdx = updated.findIndex(n => n.type === 'mystery_box' && Math.abs(n.x - playerPos.x) < 35 && Math.abs(n.y - playerPos.y) < 35);
-        if (mysteryIdx !== -1) { playSound('confirm'); setStatus('lottery'); return updated.filter((_, i) => i !== mysteryIdx); }
+        if (mysteryIdx !== -1) { playSound('confirm'); sessionStats.current.mysteryBoxesOpened += 1; setStatus('lottery'); return updated.filter((_, i) => i !== mysteryIdx); }
         const hit = updated.find(n => n.type !== 'person' && n.type !== 'coin' && n.type !== 'mystery_box' && Math.abs(n.x - playerPos.x) < 45 && Math.abs(n.y - playerPos.y) < 45);
-        if (hit) { playSound('collision'); setActiveEncounter(ENCOUNTERS[hit.encounterId]); setStatus('encounter'); return updated.filter(n => n.id !== hit.id); }
+        if (hit) { playSound('collision'); sessionStats.current.encountersTriggered += 1; setActiveEncounter(ENCOUNTERS[hit.encounterId]); setStatus('encounter'); return updated.filter(n => n.id !== hit.id); }
         return updated;
       });
       spawnTimer.current += 16;
@@ -234,6 +256,7 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
     const handleMouseDown = (e: MouseEvent) => {
       if (status === 'playing' && controlMode === 'person') {
         playSound('shoot');
+        sessionStats.current.bulletsShot += 1;
         setBullets(prev => [...prev, { id: Math.random().toString(), x: personPos.x + 10, y: personPos.y - 8, vx: 12, vy: 0 }]);
       }
     };
@@ -275,6 +298,7 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
           const targetPass = npcs[idx].passengerData!;
           if (resources.passengers.length < cap) {
             playSound('onboard'); playSound('coin');
+            sessionStats.current.passengersOnboarded += 1; sessionStats.current.goldEarned += 20;
             setResources(prev => ({ ...prev, passengers: [...prev.passengers, targetPass], gold: prev.gold + 20 }));
             addNotification("Passenger onboarded! +20 gold.");
             setNpcs(prev => prev.filter((_, i) => i !== idx));
@@ -296,7 +320,11 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
 
   const handleChoice = (choice: Choice) => {
     playSound('money');
+    sessionStats.current.choicesMade += 1;
+    if (choice.goldCost) sessionStats.current.goldSpent += choice.goldCost;
+    if (choice.goldGain) sessionStats.current.goldEarned += choice.goldGain;
     if (choice.id === 'confirm_replacement' && replacementTarget) {
+      sessionStats.current.goldEarned += 50;
       setResources(prev => { const next = [...prev.passengers]; next.splice(Math.floor(Math.random() * next.length), 1); next.push(replacementTarget); return { ...prev, passengers: next, gold: prev.gold + 50 }; });
     }
     setResources(prev => ({
@@ -322,13 +350,14 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
   const closeEncounter = () => {
     const action = pendingAction; setPendingAction(null); setActiveEncounter(null); setLastChoiceResult(null); setReplacementTarget(null);
     if (action === 'continue_journey') { setResources(prev => ({ ...prev, journeyCount: prev.journeyCount + 1, progress: 0 })); setNpcs([]); setStatus('playing'); }
-    else if (action === 'end_journey') { setVictoryType('hero'); setStatus('victory'); stopAllAudio(); onGameEnd(resources.gold + resources.reputation * 2, resources.gold, resources.reputation); }
+    else if (action === 'end_journey') { setVictoryType('hero'); setStatus('victory'); stopAllAudio(); onGameEnd(resources.gold + resources.reputation * 2, resources.gold, resources.reputation, sessionStats.current, resources, 'victory', 'hero'); }
     else setStatus('playing');
   };
 
   const handleVehicleSelect = (v: VehicleType) => {
     const costs: Record<VehicleType, number> = { caravan: 0, bike: 50, car: 100, truck: 200, train: 500 };
     if (resources.gold >= costs[v] || v === resources.vehicle) {
+      if (v !== resources.vehicle) { sessionStats.current.vehicleChanges += 1; sessionStats.current.goldSpent += costs[v]; }
       setResources(prev => ({ ...prev, vehicle: v, gold: v === prev.vehicle ? prev.gold : prev.gold - costs[v] }));
       setStatus('playing');
     }
@@ -356,7 +385,7 @@ const GameEngine: React.FC<GameEngineProps> = ({ playerName, onGameEnd, onExit }
             <h2 className="text-8xl font-black text-white uppercase italic animate-pulse">PAUSED</h2>
             <div className="flex flex-col gap-4">
               <button onClick={() => { setIsPaused(false); playSound('confirm'); }} className="text-4xl py-4 bg-emerald-600 border-4 border-black text-white font-black uppercase">RESUME [ESC/SPACE]</button>
-              <button onClick={() => { setIsPaused(false); stopAllAudio(); onExit(); }} className="text-3xl py-3 bg-red-800 border-4 border-black text-white font-black uppercase">ABANDON</button>
+              <button onClick={() => { setIsPaused(false); stopAllAudio(); onGameEnd(resources.gold + resources.reputation * 2, resources.gold, resources.reputation, sessionStats.current, resources, 'exit', null); onExit(); }} className="text-3xl py-3 bg-red-800 border-4 border-black text-white font-black uppercase">ABANDON</button>
             </div>
           </div>
         </div>
