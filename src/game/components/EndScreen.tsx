@@ -42,7 +42,7 @@ const EndScreen: React.FC<EndScreenProps> = ({ status, victoryType, resources, o
           </div>
           <div className="flex gap-4">
             <button onClick={() => { onPlaySound('confirm'); onRestart(); }} className="flex-1 text-3xl py-6 bg-emerald-700 hover:bg-emerald-600 border-4 border-black text-white font-black uppercase">RESPAWN</button>
-            <button onClick={onExit} className="flex-1 text-3xl py-6 bg-amber-700 hover:bg-amber-600 border-4 border-black text-white font-black uppercase">EXIT</button>
+            <button onClick={() => { onPlaySound('confirm'); onExit(); }} className="flex-1 text-3xl py-6 bg-amber-700 hover:bg-amber-600 border-4 border-black text-white font-black uppercase">EXIT</button>
           </div>
         </div>
         <div className="bg-[#313131] p-3 text-center border-t-4 border-black"><span className="text-white/20 text-xs font-bold uppercase">Seed: {Math.floor(Math.random() * 9999999)}</span></div>
