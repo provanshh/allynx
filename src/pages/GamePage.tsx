@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import ThemeToggle from "@/components/ThemeToggle";
 import GameEngine from "@/game/GameEngine";
 import PlayerComparison from "@/components/PlayerComparison";
+import AIPlayerComparison from "@/components/AIPlayerComparison";
 import gamingBgVideo from "@/assets/gaming-bg.mp4";
 
 interface LeaderboardEntry {
@@ -124,6 +125,11 @@ const GamePage = () => {
 
             {/* Player Comparison */}
             <PlayerComparison leaderboard={leaderboard} />
+          </div>
+
+          {/* AI Player Comparison - Full Width */}
+          <div className="lg:col-span-2">
+            <AIPlayerComparison />
           </div>
 
           {/* Leaderboard */}
