@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Target, Users, Brain, BarChart3, Crown } from "lucide-react";
+import DashboardAICompare from "@/components/DashboardAICompare";
 import AppSidebar from "@/components/AppSidebar";
 import HeroBanner from "@/components/HeroBanner";
 import KPICard from "@/components/KPICard";
@@ -65,6 +66,7 @@ const Index = () => {
         return (
           <>
             <HeroBanner />
+            <DashboardAICompare />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
               {kpis.map((kpi, i) => (
                 <KPICard key={kpi.title} {...kpi} delay={i * 0.1} />
