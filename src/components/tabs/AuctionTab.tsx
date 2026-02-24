@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { Gavel, Coins, Users, Brain, Shield, AlertTriangle, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { sendTelegramNotification } from "@/lib/telegram";
+import { toast } from "sonner";
 
 const purse = { total: 90, spent: 52.5, remaining: 37.5 };
 const slots = { total: 25, filled: 14, overseas: { limit: 8, used: 5 } };
@@ -90,7 +92,10 @@ const AuctionTab = () => (
                     <Star className="w-2.5 h-2.5 text-primary" /> AI Bid
                   </p>
                 </div>
-                <Button size="sm" className="h-7 text-[10px] bg-primary text-primary-foreground">Bid</Button>
+                <Button size="sm" className="h-7 text-[10px] bg-primary text-primary-foreground" onClick={() => {
+                  toast.success(`Bid placed on ${p.name}!`);
+                  sendTelegramNotification(`💰 <b>Auction Bid</b>\n🏏 <b>${p.name}</b> (${p.role})\n💵 AI Suggested: ₹${p.aiSuggested}Cr · Base: ₹${p.base}Cr\n⚠️ Risk: ${p.risk}${p.overseas ? " · 🌍 Overseas" : ""}`);
+                }}>Bid</Button>
               </div>
             </motion.div>
           ))}
